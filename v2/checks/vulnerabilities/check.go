@@ -62,7 +62,7 @@ func (c *check) Check(ctx context.Context, i voucher.ImageData) (bool, error) {
 }
 
 func init() {
-	voucher.RegisterCheckFactory("sbom", func() voucher.Check {
+	voucher.RegisterCheckFactory("vulnerabilities", func() voucher.Check {
 		return new(check)
 	})
 }

@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	voucher "github.com/grafeas/voucher/v2"
 	"github.com/grafeas/voucher/v2/cmd/config"
 	"github.com/grafeas/voucher/v2/repository"
+	"github.com/sirupsen/logrus"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -43,7 +44,14 @@ func (s *Server) handleChecks(w http.ResponseWriter, r *http.Request, name ...st
 	}
 	defer metadataClient.Close()
 
-	fmt.Printf("This is the  MetadataClient, %v", metadataClient)
+	log := &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.JSONFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.DebugLevel,
+	}
+
+	log.Printf("This is the  MetadataClient, %v", metadataClient)
 
 	buildDetail, err := metadataClient.GetBuildDetail(ctx, imageData)
 	if nil != err {

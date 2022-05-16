@@ -3,11 +3,13 @@ package containeranalysis
 import (
 	"context"
 	"errors"
+	"os"
 
 	containeranalysisapi "cloud.google.com/go/containeranalysis/apiv1"
 	grafeasv1 "cloud.google.com/go/grafeas/apiv1"
 
 	"github.com/docker/distribution/reference"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	grafeas "google.golang.org/genproto/googleapis/grafeas/v1"
@@ -168,6 +170,15 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 
 	req := &grafeas.ListOccurrencesRequest{Parent: projectPath(project), Filter: filterStr}
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
+
+	log := &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.JSONFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.DebugLevel,
+	}
+
+	log.Printf("occ Iterator: %v\n", occIterator)
 
 	occ, err := occIterator.Next()
 	if err != nil {

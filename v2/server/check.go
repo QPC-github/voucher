@@ -43,6 +43,8 @@ func (s *Server) handleChecks(w http.ResponseWriter, r *http.Request, name ...st
 	}
 	defer metadataClient.Close()
 
+	fmt.Printf("This is the  MetadataClient, %v", metadataClient)
+
 	buildDetail, err := metadataClient.GetBuildDetail(ctx, imageData)
 	if nil != err {
 		LogWarning(fmt.Sprintf("could not get image metadata for %s", imageData), err)

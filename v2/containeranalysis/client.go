@@ -81,9 +81,19 @@ func (g *Client) GetAttestations(ctx context.Context, ref reference.Canonical) (
 
 	var attestations []voucher.SignedAttestation
 
+	log := &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.JSONFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.DebugLevel,
+	}
+
 	project := projectPath(g.binauthProject)
 	req := &grafeas.ListOccurrencesRequest{Parent: project, Filter: filterStr}
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
+
+	log.Printf("ListOccurrencesRequest from verify: %+v\n", req)
+	log.Printf("occ Iterator from verify: %+v\n", occIterator)
 
 	for {
 		occ, err := occIterator.Next()
@@ -178,8 +188,8 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 	req := &grafeas.ListOccurrencesRequest{Parent: projectPath(project), Filter: filterStr}
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
 
-	log.Printf("ListOccurrencesRequest: %+v\n", req)
-	log.Printf("occ Iterator: %v\n", occIterator)
+	log.Printf("ListOccurrencesRequest from check: %+v\n", req)
+	log.Printf("occ Iterator from check: %+v\n", occIterator)
 
 	occ, err := occIterator.Next()
 	if err != nil {
@@ -188,8 +198,6 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 				Type: voucher.VulnerabilityType,
 				Err:  errNoOccurrences,
 			}
-			// Idea we had not doing it currently
-			// return repository.BuildDetail{}, nil
 		}
 		return repository.BuildDetail{}, err
 	}

@@ -213,7 +213,7 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 				Commit:        "",
 				BuildCreator:  "",
 				BuildURL:      "",
-				ProjectID:     "shopify-docker-images",
+				ProjectID:     "projects/shopify-docker-images",
 				Artifacts:     []repository.BuildArtifact{},
 			}, nil
 		}

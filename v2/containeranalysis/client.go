@@ -171,7 +171,15 @@ func (g *Client) Close() {
 func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (repository.BuildDetail, error) {
 	var err error
 
-	filterStr := kindFilterStr(ref, grafeas.NoteKind_BUILD)
+	// 	"jsonPayload": {
+	// 	  "msg": "ListOccurrencesRequest from check: parent:\"projects/shopify-codelab-and-demos\"
+	// filter:\"resourceUrl=\\\"https://gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f\\\"
+	//  AND kind=\\\"BUILD\\\"\" \n",
+	// 	  "level": "info"
+
+	// TODO, put this back!!!
+	// filterStr := kindFilterStr(ref, grafeas.NoteKind_BUILD)
+	filterStr := kindFilterStr(ref, grafeas.NoteKind_NOTE_KIND_UNSPECIFIED)
 
 	project, err := uri.ReferenceToProjectName(ref)
 	if nil != err {

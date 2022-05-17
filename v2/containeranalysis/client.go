@@ -168,9 +168,6 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 		return repository.BuildDetail{}, err
 	}
 
-	req := &grafeas.ListOccurrencesRequest{Parent: projectPath(project), Filter: filterStr}
-	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
-
 	log := &logrus.Logger{
 		Out:       os.Stderr,
 		Formatter: new(logrus.JSONFormatter),
@@ -178,6 +175,10 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 		Level:     logrus.DebugLevel,
 	}
 
+	req := &grafeas.ListOccurrencesRequest{Parent: projectPath(project), Filter: filterStr}
+	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
+
+	log.Printf("ListOccurrencesRequest: %+v\n", req)
 	log.Printf("occ Iterator: %v\n", occIterator)
 
 	occ, err := occIterator.Next()
@@ -187,6 +188,8 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 				Type: voucher.VulnerabilityType,
 				Err:  errNoOccurrences,
 			}
+			// Idea we had not doing it currently
+			// return repository.BuildDetail{}, nil
 		}
 		return repository.BuildDetail{}, err
 	}

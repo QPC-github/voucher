@@ -178,13 +178,13 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 	// 	  "level": "info"
 
 	// TODO, put this back!!!
-	// filterStr := kindFilterStr(ref, grafeas.NoteKind_BUILD)
-	filterStr := kindFilterStr(ref, grafeas.NoteKind_NOTE_KIND_UNSPECIFIED)
+	filterStr := kindFilterStr(ref, grafeas.NoteKind_BUILD)
+	// filterStr := kindFilterStr(ref, grafeas.NoteKind_NOTE_KIND_UNSPECIFIED)
 
-	project, err := uri.ReferenceToProjectName(ref)
-	if nil != err {
-		return repository.BuildDetail{}, err
-	}
+	// project, err := uri.ReferenceToProjectName(ref)
+	// if nil != err {
+	// 	return repository.BuildDetail{}, err
+	// }
 
 	log := &logrus.Logger{
 		Out:       os.Stderr,
@@ -193,7 +193,8 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 		Level:     logrus.DebugLevel,
 	}
 
-	req := &grafeas.ListOccurrencesRequest{Parent: projectPath(project), Filter: filterStr}
+	// TODO: replace the Parent with proper project again
+	req := &grafeas.ListOccurrencesRequest{Parent: "projects/shopify-docker-images", Filter: filterStr}
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
 
 	log.Printf("ListOccurrencesRequest from check: %+v\n", req)

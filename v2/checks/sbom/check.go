@@ -2,9 +2,11 @@ package sbom
 
 import (
 	"context"
+	"os"
 	"strings"
 
 	"github.com/grafeas/voucher/v2"
+	"github.com/sirupsen/logrus"
 )
 
 // check is a check that verifies if there's an sbom attached with
@@ -22,10 +24,25 @@ func (c *check) SetSBOMClient(sbomClient voucher.SBOMClient) {
 // hasSBOM returns true if the passed image has an SBOM attached
 func (c *check) hasSBOM(i voucher.ImageData) bool {
 	// Parse the image reference
+	log := &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.JSONFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.DebugLevel,
+	}
+
 	imageName := i.Name()
 	tag := getSBOMTagFromImage(i)
 
-	_, err := c.sbomClient.GetSBOM(context.Background(), imageName, tag)
+	sbom, err := c.sbomClient.GetSBOM(context.Background(), imageName, tag)
+
+	log.WithFields(logrus.Fields{
+		"image":   i.Name(),
+		"iTag":    i.Digest(),
+		"sbomTag": tag,
+		"sbom":    sbom,
+	}).Info("hasSBOM check log")
+
 	return err == nil
 }
 

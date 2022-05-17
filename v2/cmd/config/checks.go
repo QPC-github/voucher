@@ -108,7 +108,7 @@ func NewCheckSuite(secrets *Secrets, metadataClient voucher.MetadataClient, repo
 		setCheckTrustedIdentitiesAndProjects(check, trustedBuildCreators, trustedProjects)
 		setCheckRepositoryClient(check, repositoryClient)
 		setCheckSBOMClient(check, sbom)
-		// vulnerabilites check is sooo close to sbom
+		// vulnerabilities check is sooo close to sbom
 		setCheckSBOMClient(check, vulnerabilities)
 		checksuite.Add(name, check)
 	}

@@ -177,9 +177,7 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 	//  AND kind=\\\"BUILD\\\"\" \n",
 	// 	  "level": "info"
 
-	// TODO, put this back!!!
 	filterStr := kindFilterStr(ref, grafeas.NoteKind_BUILD)
-	// filterStr := kindFilterStr(ref, grafeas.NoteKind_NOTE_KIND_UNSPECIFIED)
 
 	// project, err := uri.ReferenceToProjectName(ref)
 	// if nil != err {

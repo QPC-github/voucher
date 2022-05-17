@@ -203,10 +203,19 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 	occ, err := occIterator.Next()
 	if err != nil {
 		if err == iterator.Done {
-			err = &voucher.NoMetadataError{
-				Type: voucher.VulnerabilityType,
-				Err:  errNoOccurrences,
-			}
+			// TODO: put this back
+			// err = &voucher.NoMetadataError{
+			// 	Type: voucher.VulnerabilityType,
+			// 	Err:  errNoOccurrences,
+			// }
+			return repository.BuildDetail{
+				RepositoryURL: ref.String(),
+				Commit:        "",
+				BuildCreator:  "",
+				BuildURL:      "",
+				ProjectID:     "shopify-docker-images",
+				Artifacts:     []repository.BuildArtifact{},
+			}, nil
 		}
 		return repository.BuildDetail{}, err
 	}

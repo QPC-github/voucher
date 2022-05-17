@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"time"
 
 	"github.com/CycloneDX/cyclonedx-go"
@@ -14,6 +15,7 @@ import (
 	goregistryv1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/google"
 	voucher "github.com/grafeas/voucher/v2"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -85,6 +87,22 @@ func (c *Client) GetSBOM(ctx context.Context, imageName, tag string) (cyclonedx.
 	if err != nil {
 		return cyclonedx.BOM{}, fmt.Errorf("error getting SBOM from image %w", err)
 	}
+
+	log := &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.JSONFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.DebugLevel,
+	}
+
+	log.WithFields(logrus.Fields{
+		"bom":        cycloneDX,
+		"sbom":       sbom,
+		"sbomName":   sbomName,
+		"sbomDigest": sbomDigest,
+		"tags":       tags,
+		"repository": repository,
+	}).Info("GetSBOM function log")
 
 	return cycloneDX, nil
 }

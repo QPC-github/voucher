@@ -19,6 +19,8 @@ import (
 	_ "github.com/grafeas/voucher/v2/checks/approved"
 	// Register the Sbom check
 	_ "github.com/grafeas/voucher/v2/checks/sbom"
+	// Register the Vulnerbilities check
+	_ "github.com/grafeas/voucher/v2/checks/vulnerabilities"
 )
 
 // setAuth sets the Auth for the passed Check, if that Check implements
@@ -88,6 +90,7 @@ func NewCheckSuite(secrets *Secrets, metadataClient voucher.MetadataClient, repo
 	scanner := newScanner(secrets, metadataClient, auth)
 	checksuite := voucher.NewSuite()
 	sbom := newSBOMClient()
+	vulnerabilities := newSBOMClient()
 
 	trustedBuildCreators := viper.GetStringSlice("trusted_builder_identities")
 	trustedProjects := viper.GetStringSlice("trusted_projects")
@@ -105,7 +108,8 @@ func NewCheckSuite(secrets *Secrets, metadataClient voucher.MetadataClient, repo
 		setCheckTrustedIdentitiesAndProjects(check, trustedBuildCreators, trustedProjects)
 		setCheckRepositoryClient(check, repositoryClient)
 		setCheckSBOMClient(check, sbom)
-
+		// vulnerabilites check is sooo close to sbom
+		setCheckSBOMClient(check, vulnerabilities)
 		checksuite.Add(name, check)
 	}
 

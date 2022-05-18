@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"time"
 
 	"github.com/CycloneDX/cyclonedx-go"
@@ -14,6 +15,7 @@ import (
 	goregistryv1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/google"
 	voucher "github.com/grafeas/voucher/v2"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -60,7 +62,17 @@ func (c *Client) GetVulnerabilities(ctx context.Context, ref reference.Canonical
 
 // GetSBOM gets the SBOM for the passed image.
 func (c *Client) GetSBOM(ctx context.Context, imageName, tag string) (cyclonedx.BOM, error) {
+	log := &logrus.Logger{
+		Out:       os.Stderr,
+		Formatter: new(logrus.JSONFormatter),
+		Hooks:     make(logrus.LevelHooks),
+		Level:     logrus.DebugLevel,
+	}
 	repository, err := name.NewRepository(imageName)
+
+	log.WithFields(logrus.Fields{
+		"repository": repository,
+	}).Info("name.NewRepository")
 
 	if err != nil {
 		return cyclonedx.BOM{}, fmt.Errorf("error getting repository name %w", err)
@@ -68,11 +80,19 @@ func (c *Client) GetSBOM(ctx context.Context, imageName, tag string) (cyclonedx.
 
 	tags, err := c.service.ListTags(ctx, repository)
 
+	log.WithFields(logrus.Fields{
+		"tags": tags,
+	}).Info("ListTags")
+
 	if err != nil {
 		return cyclonedx.BOM{}, fmt.Errorf("error listing tags %w", err)
 	}
 
 	sbomDigest, err := GetSBOMDigestWithTag(imageName, tags, tag)
+
+	log.WithFields(logrus.Fields{
+		"sbomDigest": sbomDigest,
+	}).Info("GetSBOMDigestWithTag")
 
 	if err != nil {
 		return cyclonedx.BOM{}, fmt.Errorf("error getting digest with tag %w", err)
@@ -80,6 +100,10 @@ func (c *Client) GetSBOM(ctx context.Context, imageName, tag string) (cyclonedx.
 
 	sbomName := imageName + "@" + sbomDigest
 	sbom, err := c.service.PullImage(sbomName)
+
+	log.WithFields(logrus.Fields{
+		"sbom": sbom,
+	}).Info("PullImage")
 
 	if err != nil {
 		return cyclonedx.BOM{}, fmt.Errorf("error pulling image from gcr with crane %w", err)

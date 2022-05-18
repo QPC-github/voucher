@@ -46,7 +46,7 @@ func getSBOMTagFromImage(i voucher.ImageData) string {
 // check checks if an image was built by a trusted source
 func (c *check) Check(ctx context.Context, i voucher.ImageData) (bool, error) {
 	hasSbom, err := c.hasSBOM(i)
-	return hasSbom, fmt.Errorf("error checking for sbom %w, sbom error %v", err, voucher.ErrNoSBOM)
+	return hasSbom, fmt.Errorf("error checking for sbom %v, sbom error %v", err, voucher.ErrNoSBOM)
 }
 
 func init() {

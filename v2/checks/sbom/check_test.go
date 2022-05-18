@@ -17,8 +17,9 @@ func TestHasSBOM(t *testing.T) {
 
 	img, digest := "gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f", "sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f"
 	ref := getCanonicalRef(t, img, digest)
-	sbom := mockCheck.hasSBOM(ref)
+	sbom, err := mockCheck.hasSBOM(ref)
 
+	assert.NoError(t, err, "hasSBOM")
 	assert.True(t, sbom)
 }
 

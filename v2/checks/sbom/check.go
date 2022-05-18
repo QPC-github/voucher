@@ -2,11 +2,10 @@ package sbom
 
 import (
 	"context"
-	"os"
+	"fmt"
 	"strings"
 
 	"github.com/grafeas/voucher/v2"
-	"github.com/sirupsen/logrus"
 )
 
 // check is a check that verifies if there's an sbom attached with
@@ -22,28 +21,18 @@ func (c *check) SetSBOMClient(sbomClient voucher.SBOMClient) {
 }
 
 // hasSBOM returns true if the passed image has an SBOM attached
-func (c *check) hasSBOM(i voucher.ImageData) bool {
+func (c *check) hasSBOM(i voucher.ImageData) (bool, error) {
 	// Parse the image reference
-	log := &logrus.Logger{
-		Out:       os.Stderr,
-		Formatter: new(logrus.JSONFormatter),
-		Hooks:     make(logrus.LevelHooks),
-		Level:     logrus.DebugLevel,
-	}
-
 	imageName := i.Name()
 	tag := getSBOMTagFromImage(i)
 
-	sbom, err := c.sbomClient.GetSBOM(context.Background(), imageName, tag)
+	_, err := c.sbomClient.GetSBOM(context.Background(), imageName, tag)
 
-	log.WithFields(logrus.Fields{
-		"image":   i.Name(),
-		"iTag":    i.Digest(),
-		"sbomTag": tag,
-		"sbom":    sbom,
-	}).Info("hasSBOM check log")
+	if err != nil {
+		return false, err
+	}
 
-	return err == nil
+	return true, nil
 }
 
 // GetSBOMTagFromImage returns the sbom tag from the image
@@ -56,11 +45,8 @@ func getSBOMTagFromImage(i voucher.ImageData) string {
 
 // check checks if an image was built by a trusted source
 func (c *check) Check(ctx context.Context, i voucher.ImageData) (bool, error) {
-	if !c.hasSBOM(i) {
-		return false, voucher.ErrNoSBOM
-	}
-	// add more
-	return true, nil
+	hasSbom, err := c.hasSBOM(i)
+	return hasSbom, fmt.Errorf("error checking for sbom %w, sbom error %v", err, voucher.ErrNoSBOM)
 }
 
 func init() {

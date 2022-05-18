@@ -46,7 +46,7 @@ func getSBOMTagFromImage(i voucher.ImageData) string {
 	return tag
 }
 
-// check Is it true that there are no vulnerabilites found?
+// check Is it true that there are no vulnerabilities found?
 func (c *check) Check(ctx context.Context, i voucher.ImageData) (bool, error) {
 	result, err := c.hasVulnerabilities(i)
 	// do the error check first

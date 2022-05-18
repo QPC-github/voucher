@@ -3,13 +3,11 @@ package containeranalysis
 import (
 	"context"
 	"errors"
-	"os"
 
 	containeranalysisapi "cloud.google.com/go/containeranalysis/apiv1"
 	grafeasv1 "cloud.google.com/go/grafeas/apiv1"
 
 	"github.com/docker/distribution/reference"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	grafeas "google.golang.org/genproto/googleapis/grafeas/v1"
@@ -81,19 +79,9 @@ func (g *Client) GetAttestations(ctx context.Context, ref reference.Canonical) (
 
 	var attestations []voucher.SignedAttestation
 
-	log := &logrus.Logger{
-		Out:       os.Stderr,
-		Formatter: new(logrus.JSONFormatter),
-		Hooks:     make(logrus.LevelHooks),
-		Level:     logrus.DebugLevel,
-	}
-
 	project := projectPath(g.binauthProject)
 	req := &grafeas.ListOccurrencesRequest{Parent: project, Filter: filterStr}
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
-
-	log.Printf("ListOccurrencesRequest from verify: %+v\n", req)
-	log.Printf("occ Iterator from verify: %+v\n", occIterator)
 
 	for {
 		occ, err := occIterator.Next()
@@ -171,49 +159,23 @@ func (g *Client) Close() {
 func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (repository.BuildDetail, error) {
 	var err error
 
-	// 	"jsonPayload": {
-	// 	  "msg": "ListOccurrencesRequest from check: parent:\"projects/shopify-codelab-and-demos\"
-	// filter:\"resourceUrl=\\\"https://gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f\\\"
-	//  AND kind=\\\"BUILD\\\"\" \n",
-	// 	  "level": "info"
-
 	filterStr := kindFilterStr(ref, grafeas.NoteKind_BUILD)
 
-	// project, err := uri.ReferenceToProjectName(ref)
-	// if nil != err {
-	// 	return repository.BuildDetail{}, err
-	// }
-
-	log := &logrus.Logger{
-		Out:       os.Stderr,
-		Formatter: new(logrus.JSONFormatter),
-		Hooks:     make(logrus.LevelHooks),
-		Level:     logrus.DebugLevel,
+	project, err := uri.ReferenceToProjectName(ref)
+	if nil != err {
+		return repository.BuildDetail{}, err
 	}
 
-	// TODO: replace the Parent with proper project again
-	req := &grafeas.ListOccurrencesRequest{Parent: "projects/shopify-docker-images", Filter: filterStr}
+	req := &grafeas.ListOccurrencesRequest{Parent: projectPath(project), Filter: filterStr}
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
-
-	log.Printf("ListOccurrencesRequest from check: %+v\n", req)
-	log.Printf("occ Iterator from check: %+v\n", occIterator)
 
 	occ, err := occIterator.Next()
 	if err != nil {
 		if err == iterator.Done {
-			// TODO: put this back
-			// err = &voucher.NoMetadataError{
-			// 	Type: voucher.VulnerabilityType,
-			// 	Err:  errNoOccurrences,
-			// }
-			return repository.BuildDetail{
-				RepositoryURL: ref.String(),
-				Commit:        "",
-				BuildCreator:  "",
-				BuildURL:      "",
-				ProjectID:     "projects/shopify-docker-images",
-				Artifacts:     []repository.BuildArtifact{},
-			}, nil
+			err = &voucher.NoMetadataError{
+				Type: voucher.VulnerabilityType,
+				Err:  errNoOccurrences,
+			}
 		}
 		return repository.BuildDetail{}, err
 	}

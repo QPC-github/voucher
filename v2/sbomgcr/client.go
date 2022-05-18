@@ -101,7 +101,8 @@ func (c *Client) GetSBOM(ctx context.Context, imageName, tag string) (cyclonedx.
 	sbom, err := c.service.PullImage(sbomName)
 
 	log.WithFields(logrus.Fields{
-		"sbom": sbom,
+		"sbom":  sbom,
+		"error": err,
 	}).Info("c.service.PullImage")
 
 	if err != nil {

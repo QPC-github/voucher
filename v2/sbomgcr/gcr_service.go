@@ -34,7 +34,7 @@ func NewGCRService() GCRService {
 
 // PullImage returns the image described by src
 func (g *gcrServiceImpl) PullImage(src string) (v1.Image, error) {
-	return crane.Pull(src)
+	return crane.Pull(src, crane.WithAuth(g.auth))
 }
 
 // ListTags returns the tags for the repo

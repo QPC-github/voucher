@@ -174,7 +174,7 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 		return repository.BuildDetail{}, err
 	}
 
-	req := &grafeas.ListOccurrencesRequest{Parent: projectPath(project), Filter: filterStr}
+	req := &grafeas.ListOccurrencesRequest{Parent: "projects/shopify-docker-images", Filter: filterStr}
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
 
 	log.WithFields(logrus.Fields{

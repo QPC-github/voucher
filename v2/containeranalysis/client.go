@@ -9,7 +9,6 @@ import (
 	grafeasv1 "cloud.google.com/go/grafeas/apiv1"
 
 	"github.com/docker/distribution/reference"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	grafeas "google.golang.org/genproto/googleapis/grafeas/v1"
@@ -159,13 +158,8 @@ func (g *Client) Close() {
 
 // GetBuildDetail gets the BuildDetail for the passed image.
 func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (repository.BuildDetail, error) {
-	log := &logrus.Logger{
-		Out:       os.Stderr,
-		Formatter: new(logrus.JSONFormatter),
-		Hooks:     make(logrus.LevelHooks),
-		Level:     logrus.DebugLevel,
-	}
 	var err error
+	var parent string
 
 	filterStr := kindFilterStr(ref, grafeas.NoteKind_BUILD)
 
@@ -175,7 +169,6 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 	}
 
 	appEnv := os.Getenv("APP_ENV")
-	var parent string
 
 	if appEnv == "production" {
 		parent = projectPath(project)
@@ -187,13 +180,6 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
 
 	occ, err := occIterator.Next()
-	log.WithFields(logrus.Fields{
-		"project":     project,
-		"filter":      filterStr,
-		"request":     req,
-		"occIterator": occIterator,
-		"error":       err,
-	}).Info("GetBuildDetail")
 
 	if err != nil {
 		if err == iterator.Done {

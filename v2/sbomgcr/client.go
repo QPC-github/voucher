@@ -62,47 +62,61 @@ func (c *Client) GetVulnerabilities(ctx context.Context, ref reference.Canonical
 
 // GetSBOM gets the SBOM for the passed image.
 func (c *Client) GetSBOM(ctx context.Context, imageName, tag string) (cyclonedx.BOM, error) {
-	repository, err := name.NewRepository(imageName)
-	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error getting repository name %w", err)
-	}
-
-	tags, err := c.service.ListTags(ctx, repository)
-	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error listing tags %w", err)
-	}
-
-	sbomDigest, err := GetSBOMDigestWithTag(imageName, tags, tag)
-	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error getting digest with tag %w", err)
-	}
-
-	sbomName := imageName + "@" + sbomDigest
-	sbom, err := c.service.PullImage(sbomName)
-	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error pulling image from gcr with crane %w", err)
-	}
-
-	cycloneDX, err := GetSBOMFromImage(sbom)
-	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error getting SBOM from image %w", err)
-	}
-
 	log := &logrus.Logger{
 		Out:       os.Stderr,
 		Formatter: new(logrus.JSONFormatter),
 		Hooks:     make(logrus.LevelHooks),
 		Level:     logrus.DebugLevel,
 	}
+	// PUT THE LOG CONSTRUCTOR AT THE VERY BEGINNING, FOR EACH OF THESE RETURNS, DO A LOG BEFORE THE RETURN
+	repository, err := name.NewRepository(imageName)
+	log.WithFields(logrus.Fields{
+		"repository": repository,
+	}).Info("name.NewRepository")
+
+	if err != nil {
+		return cyclonedx.BOM{}, fmt.Errorf("error getting repository name %w", err)
+	}
+
+	tags, err := c.service.ListTags(ctx, repository)
+	log.WithFields(logrus.Fields{
+		"tags": tags,
+	}).Info("c.service.ListTags")
+
+	if err != nil {
+		return cyclonedx.BOM{}, fmt.Errorf("error listing tags %w", err)
+	}
+
+	sbomDigest, err := GetSBOMDigestWithTag(imageName, tags, tag)
 
 	log.WithFields(logrus.Fields{
-		"bom":        cycloneDX,
-		"sbom":       sbom,
-		"sbomName":   sbomName,
 		"sbomDigest": sbomDigest,
-		"tags":       tags,
-		"repository": repository,
-	}).Info("GetSBOM function log")
+	}).Info("GetSBOMDigestWithTag")
+
+	if err != nil {
+		return cyclonedx.BOM{}, fmt.Errorf("error getting digest with tag %w", err)
+	}
+
+	sbomName := imageName + "@" + sbomDigest
+	sbom, err := c.service.PullImage(sbomName)
+
+	log.WithFields(logrus.Fields{
+		"sbom": sbom,
+	}).Info("c.service.PullImage")
+
+	if err != nil {
+		return cyclonedx.BOM{}, fmt.Errorf("error pulling image from gcr with crane %w", err)
+	}
+
+	cycloneDX, err := GetSBOMFromImage(sbom)
+
+	log.WithFields(logrus.Fields{
+		"cycloneDX": cycloneDX,
+	}).Info("GetSBOMFromImage")
+
+	if err != nil {
+		return cyclonedx.BOM{}, fmt.Errorf("error getting SBOM from image %w", err)
+	}
 
 	return cycloneDX, nil
 }

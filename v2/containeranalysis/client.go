@@ -186,14 +186,15 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 	req := &grafeas.ListOccurrencesRequest{Parent: parent, Filter: filterStr}
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
 
+	occ, err := occIterator.Next()
 	log.WithFields(logrus.Fields{
 		"project":     project,
 		"filter":      filterStr,
 		"request":     req,
 		"occIterator": occIterator,
-	}).Debug("GetBuildDetail")
+		"error":       err,
+	}).Info("GetBuildDetail")
 
-	occ, err := occIterator.Next()
 	if err != nil {
 		if err == iterator.Done {
 			err = &voucher.NoMetadataError{

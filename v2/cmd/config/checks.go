@@ -17,6 +17,10 @@ import (
 	_ "github.com/grafeas/voucher/v2/checks/snakeoil"
 	// Register the Repo check
 	_ "github.com/grafeas/voucher/v2/checks/approved"
+	// Register the Sbom check
+	_ "github.com/grafeas/voucher/v2/checks/sbom"
+	// Register the Vulnerbilities check
+	_ "github.com/grafeas/voucher/v2/checks/vulnerabilities"
 )
 
 // setAuth sets the Auth for the passed Check, if that Check implements
@@ -69,6 +73,14 @@ func setCheckRepositoryClient(check voucher.Check, repositoryClient repository.C
 	}
 }
 
+// setCheckSBOMClient sets the sbom/gcr client for the passed Check, if that Check implements
+// checkGCRClient.
+func setCheckSBOMClient(check voucher.Check, gcrClient voucher.SBOMClient) {
+	if sbomClientCheck, ok := check.(voucher.SbomClientCheck); ok {
+		sbomClientCheck.SetSBOMClient(gcrClient)
+	}
+}
+
 // NewCheckSuite creates a new checks.Suite with the requested
 // Checks, passing any necessary configuration details to the
 // checks.
@@ -77,6 +89,8 @@ func NewCheckSuite(secrets *Secrets, metadataClient voucher.MetadataClient, repo
 	repos := validRepos()
 	scanner := newScanner(secrets, metadataClient, auth)
 	checksuite := voucher.NewSuite()
+	sbom := newSBOMClient()
+	vulnerabilities := newSBOMClient()
 
 	trustedBuildCreators := viper.GetStringSlice("trusted_builder_identities")
 	trustedProjects := viper.GetStringSlice("trusted_projects")
@@ -93,7 +107,9 @@ func NewCheckSuite(secrets *Secrets, metadataClient voucher.MetadataClient, repo
 		setCheckValidRepos(check, repos)
 		setCheckTrustedIdentitiesAndProjects(check, trustedBuildCreators, trustedProjects)
 		setCheckRepositoryClient(check, repositoryClient)
-
+		setCheckSBOMClient(check, sbom)
+		// vulnerabilities check is sooo close to sbom
+		setCheckSBOMClient(check, vulnerabilities)
 		checksuite.Add(name, check)
 	}
 

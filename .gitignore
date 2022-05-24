@@ -17,3 +17,5 @@ coverage.txt
 # build output
 dist
 build
+
+example.txt

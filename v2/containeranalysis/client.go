@@ -3,6 +3,7 @@ package containeranalysis
 import (
 	"context"
 	"errors"
+	"os"
 
 	containeranalysisapi "cloud.google.com/go/containeranalysis/apiv1"
 	grafeasv1 "cloud.google.com/go/grafeas/apiv1"
@@ -158,6 +159,7 @@ func (g *Client) Close() {
 // GetBuildDetail gets the BuildDetail for the passed image.
 func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (repository.BuildDetail, error) {
 	var err error
+	var parent string
 
 	filterStr := kindFilterStr(ref, grafeas.NoteKind_BUILD)
 
@@ -166,10 +168,19 @@ func (g *Client) GetBuildDetail(ctx context.Context, ref reference.Canonical) (r
 		return repository.BuildDetail{}, err
 	}
 
-	req := &grafeas.ListOccurrencesRequest{Parent: projectPath(project), Filter: filterStr}
+	appEnv := os.Getenv("APP_ENV")
+
+	if appEnv == "production" {
+		parent = projectPath(project)
+	} else {
+		parent = "projects/shopify-docker-images"
+	}
+
+	req := &grafeas.ListOccurrencesRequest{Parent: parent, Filter: filterStr}
 	occIterator := g.containeranalysis.ListOccurrences(ctx, req)
 
 	occ, err := occIterator.Next()
+
 	if err != nil {
 		if err == iterator.Done {
 			err = &voucher.NoMetadataError{

@@ -9,7 +9,6 @@ import (
 	voucher "github.com/grafeas/voucher/v2"
 	"github.com/grafeas/voucher/v2/cmd/config"
 	"github.com/grafeas/voucher/v2/repository"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )

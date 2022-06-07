@@ -75,7 +75,7 @@ func (c *Client) GetSBOM(ctx context.Context, imageName, tag string) (cyclonedx.
 	sbomDigest, err := GetSBOMDigestWithTag(imageName, tags, tag)
 
 	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error getting digest with tag %w", err)
+		return cyclonedx.BOM{}, fmt.Errorf("error getting digest with tag %w, are you sure the image: %s, has an sbom?", err, imageName)
 	}
 
 	sbomName := imageName + "@" + sbomDigest

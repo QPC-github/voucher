@@ -81,7 +81,7 @@ func setCheckSBOMClient(check voucher.Check, gcrClient voucher.SBOMClient) {
 	}
 }
 
-func setCheckSBOMVulnerabilityClient(check voucher.Check, gcrClient voucher.SBOMClient, vulnFailList []string, severity string) {
+func setCheckSBOMVulnerabilityClient(check voucher.Check, vulnFailList []string, severity string) {
 	if sbomVulnerbilityCheck, ok := check.(voucher.SbomVulnerabilityCheck); ok {
 		sbomVulnerbilityCheck.SetFailOnVulnerabilitiesList(vulnFailList)
 		sbomVulnerbilityCheck.SetFailOnSeverity(severity)
@@ -117,7 +117,7 @@ func NewCheckSuite(secrets *Secrets, metadataClient voucher.MetadataClient, repo
 		setCheckTrustedIdentitiesAndProjects(check, trustedBuildCreators, trustedProjects)
 		setCheckRepositoryClient(check, repositoryClient)
 		setCheckSBOMClient(check, sbom)
-		setCheckSBOMVulnerabilityClient(check, sbom, vulnFailList, vulnSeverity)
+		setCheckSBOMVulnerabilityClient(check, vulnFailList, vulnSeverity)
 		checksuite.Add(name, check)
 	}
 

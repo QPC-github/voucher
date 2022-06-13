@@ -42,7 +42,8 @@ func (c *check) SetFailOnSeverity(severity string) {
 func (c *check) SetFailOnVulnerabilitiesList(vulnList []string) {
 	c.failOnVulnerabilities = make(map[string]bool)
 	for _, cve := range vulnList {
-		c.failOnVulnerabilities[cve] = true
+		formattedCve := strings.TrimSpace(strings.ToUpper(cve))
+		c.failOnVulnerabilities[formattedCve] = true
 	}
 }
 
@@ -63,11 +64,12 @@ func (c *check) hasAListedVulnerability(i voucher.ImageData) ([]string, error) {
 
 	sbom, err := c.sbomClient.GetSBOM(context.Background(), imageName, tag)
 	if err != nil {
-		return vulnerabilitiesFound, err
+		return nil, err
 	}
 	for _, vulnerability := range *sbom.Vulnerabilities {
-		if _, ok := c.failOnVulnerabilities[vulnerability.ID]; ok {
-			vulnerabilitiesFound = append(vulnerabilitiesFound, vulnerability.ID)
+		formattedVulnerabilityID := strings.TrimSpace(strings.ToUpper(vulnerability.ID))
+		if _, ok := c.failOnVulnerabilities[formattedVulnerabilityID]; ok {
+			vulnerabilitiesFound = append(vulnerabilitiesFound, formattedVulnerabilityID)
 		}
 	}
 	return vulnerabilitiesFound, nil

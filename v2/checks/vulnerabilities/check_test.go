@@ -41,7 +41,7 @@ func TestSetVulnerabilitiesList(t *testing.T) {
 	}
 }
 
-func TestSetVulnerabilitiesList2(t *testing.T) {
+func TestHasAListedVulnerability(t *testing.T) {
 	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
 	mockCheck := check{sbomClient: mockSBOMClient}
@@ -53,11 +53,11 @@ func TestSetVulnerabilitiesList2(t *testing.T) {
 	mockCheck.SetFailOnVulnerabilitiesList(fakeList)
 	check, err := mockCheck.hasAListedVulnerability(ref)
 
-	assert.NotEmpty(t, check, "failed check on TestSetVulnerabilitiesList2")
+	assert.NotEmpty(t, check, "failed check on TestHasAListedVulnerability")
 	require.NoError(t, err, "vulnerabilities should be found")
 }
 
-func TestSetVulnerabilitiesListNoVulns(t *testing.T) {
+func TestHasNotAListedVulnerability(t *testing.T) {
 	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
 	mockCheck := check{sbomClient: mockSBOMClient}
@@ -69,6 +69,6 @@ func TestSetVulnerabilitiesListNoVulns(t *testing.T) {
 	mockCheck.SetFailOnVulnerabilitiesList(fakeList)
 	check, err := mockCheck.hasAListedVulnerability(ref)
 
-	assert.Empty(t, check, "failed check on TestSetVulnerabilitiesListNoVulns")
-	require.NoError(t, err, "vulnerabilities found in TestSetVulnerabilitiesListNoVulns")
+	assert.Empty(t, check, "failed check on TestHasNotAListedVulnerability")
+	require.NoError(t, err, "vulnerabilities found in TestHasNotAListedVulnerability")
 }

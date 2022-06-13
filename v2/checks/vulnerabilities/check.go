@@ -23,13 +23,7 @@ type SbomVulnerabilityError struct {
 func (err SbomVulnerabilityError) Error() string {
 	output := fmt.Sprintf("vulnernable to %d vulnerabilities: ", len(err.VulnerabilitiesFound))
 
-	for i, vulnerability := range err.VulnerabilitiesFound {
-		if i != 0 {
-			output += ", "
-		}
-		output += vulnerability
-	}
-	return output
+	return output + strings.Join(err.VulnerabilitiesFound, ", ")
 }
 
 func NewSbomVulnerabilityError(vulnerabilitiesFound []string) error {

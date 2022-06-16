@@ -12,7 +12,7 @@ import (
 // the container image
 type check struct {
 	sbomClient            voucher.SBOMClient
-	failOnVulnerabilities map[string]bool
+	failOnVulnerabilities map[string]struct{}
 	failOnSeverity        string
 }
 
@@ -40,10 +40,10 @@ func (c *check) SetFailOnSeverity(severity string) {
 // SetFailOnVulnerabilitiesList set a list of vulnerability CVEs to fail
 // on, e.g.: "CVE-2019-12343", "CVE-2022-26594", ...
 func (c *check) SetFailOnVulnerabilitiesList(vulnList []string) {
-	c.failOnVulnerabilities = make(map[string]bool)
+	c.failOnVulnerabilities = make(map[string]struct{})
 	for _, cve := range vulnList {
 		formattedCve := strings.TrimSpace(strings.ToUpper(cve))
-		c.failOnVulnerabilities[formattedCve] = true
+		c.failOnVulnerabilities[formattedCve] = struct{}{}
 	}
 }
 

@@ -81,6 +81,13 @@ func setCheckSBOMClient(check voucher.Check, gcrClient voucher.SBOMClient) {
 	}
 }
 
+func setCheckSBOMVulnerabilityClient(check voucher.Check, vulnFailList []string, severity string) {
+	if sbomVulnerbilityCheck, ok := check.(voucher.SbomVulnerabilityCheck); ok {
+		sbomVulnerbilityCheck.SetFailOnVulnerabilitiesList(vulnFailList)
+		sbomVulnerbilityCheck.SetFailOnSeverity(severity)
+	}
+}
+
 // NewCheckSuite creates a new checks.Suite with the requested
 // Checks, passing any necessary configuration details to the
 // checks.
@@ -90,10 +97,12 @@ func NewCheckSuite(secrets *Secrets, metadataClient voucher.MetadataClient, repo
 	scanner := newScanner(secrets, metadataClient, auth)
 	checksuite := voucher.NewSuite()
 	sbom := newSBOMClient()
-	vulnerabilities := newSBOMClient()
 
 	trustedBuildCreators := viper.GetStringSlice("trusted_builder_identities")
 	trustedProjects := viper.GetStringSlice("trusted_projects")
+
+	vulnFailList := viper.GetStringSlice("sbom_vuln.fail_list")
+	vulnSeverity := viper.GetString("sbom_vuln.failon_severity")
 
 	checks, err := voucher.GetCheckFactories(names...)
 	if nil != err {
@@ -108,8 +117,7 @@ func NewCheckSuite(secrets *Secrets, metadataClient voucher.MetadataClient, repo
 		setCheckTrustedIdentitiesAndProjects(check, trustedBuildCreators, trustedProjects)
 		setCheckRepositoryClient(check, repositoryClient)
 		setCheckSBOMClient(check, sbom)
-		// vulnerabilities check is sooo close to sbom
-		setCheckSBOMClient(check, vulnerabilities)
+		setCheckSBOMVulnerabilityClient(check, vulnFailList, vulnSeverity)
 		checksuite.Add(name, check)
 	}
 

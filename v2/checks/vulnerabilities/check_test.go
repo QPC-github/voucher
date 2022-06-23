@@ -17,9 +17,9 @@ func TestHasVulnerabilities(t *testing.T) {
 
 	img, digest := "gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f", "sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f"
 	ref := getCanonicalRef(t, img, digest)
-	hasVuln, _ := mockCheck.hasVulnerabilities(ref)
+	hasVuln, _ := mockCheck.hasAListedVulnerability(ref)
 
-	assert.True(t, hasVuln)
+	assert.Empty(t, hasVuln)
 }
 
 func getCanonicalRef(t *testing.T, img string, digestStr string) reference.Canonical {
@@ -28,4 +28,47 @@ func getCanonicalRef(t *testing.T, img string, digestStr string) reference.Canon
 	canonicalRef, err := reference.WithDigest(named, digest.Digest(digestStr))
 	require.NoError(t, err, "canonicalRef")
 	return canonicalRef
+}
+
+func TestSetVulnerabilitiesList(t *testing.T) {
+	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
+	mockSBOMClient := sbomgcr.NewClient(mockService)
+	fakeList := []string{"CVE-2022-1337", "CVE-2022-22564"}
+	mockCheck := check{sbomClient: mockSBOMClient}
+	mockCheck.SetFailOnVulnerabilitiesList(fakeList)
+	for _, cve := range fakeList {
+		assert.Contains(t, mockCheck.failOnVulnerabilities, cve)
+	}
+}
+
+func TestHasAListedVulnerability(t *testing.T) {
+	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
+	mockSBOMClient := sbomgcr.NewClient(mockService)
+	mockCheck := check{sbomClient: mockSBOMClient}
+
+	fakeList := []string{"CVE-2022-28893", "CVE-2022-28390"}
+	img, digest := "gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f", "sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f"
+	ref := getCanonicalRef(t, img, digest)
+
+	mockCheck.SetFailOnVulnerabilitiesList(fakeList)
+	check, err := mockCheck.hasAListedVulnerability(ref)
+
+	assert.NotEmpty(t, check, "failed check on TestHasAListedVulnerability")
+	require.NoError(t, err, "vulnerabilities should be found")
+}
+
+func TestHasNotAListedVulnerability(t *testing.T) {
+	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
+	mockSBOMClient := sbomgcr.NewClient(mockService)
+	mockCheck := check{sbomClient: mockSBOMClient}
+
+	fakeList := []string{}
+	img, digest := "gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f", "sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f"
+	ref := getCanonicalRef(t, img, digest)
+
+	mockCheck.SetFailOnVulnerabilitiesList(fakeList)
+	check, err := mockCheck.hasAListedVulnerability(ref)
+
+	assert.Empty(t, check, "failed check on TestHasNotAListedVulnerability")
+	require.NoError(t, err, "vulnerabilities found in TestHasNotAListedVulnerability")
 }

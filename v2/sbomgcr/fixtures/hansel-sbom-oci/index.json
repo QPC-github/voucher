@@ -6,7 +6,7 @@
          "size": 455,
          "digest": "sha256:8d6f75268a5320cdd5473acb891ec60fc481cd84d0ee9b04be8569a974608d4c",
          "annotations": {
-            "dev.ggcr.image.name": "gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:8d6f75268a5320cdd5473acb891ec60fc481cd84d0ee9b04be8569a974608d4c"
+            "dev.gghcr.image.name": "ghcr.io/shopify/hansel@sha256:3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242"
          }
       }
    ]

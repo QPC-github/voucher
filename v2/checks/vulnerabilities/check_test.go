@@ -11,11 +11,11 @@ import (
 )
 
 func TestHasVulnerabilities(t *testing.T) {
-	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
+	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbomgcr/fixtures/hansel-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
 	mockCheck := check{sbomClient: mockSBOMClient}
 
-	img, digest := "gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f", "sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f"
+	img, digest := "ghcr.io/shopify/hansel", "sha256:3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242"
 	ref := getCanonicalRef(t, img, digest)
 	hasVuln, _ := mockCheck.hasAListedVulnerability(ref)
 
@@ -31,9 +31,9 @@ func getCanonicalRef(t *testing.T, img string, digestStr string) reference.Canon
 }
 
 func TestSetVulnerabilitiesList(t *testing.T) {
-	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
+	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbomgcr/fixtures/hansel-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
-	fakeList := []string{"CVE-2022-1337", "CVE-2022-22564"}
+	fakeList := []string{"CVE-2022-27191"}
 	mockCheck := check{sbomClient: mockSBOMClient}
 	mockCheck.SetFailOnVulnerabilitiesList(fakeList)
 	for _, cve := range fakeList {
@@ -42,12 +42,12 @@ func TestSetVulnerabilitiesList(t *testing.T) {
 }
 
 func TestHasAListedVulnerability(t *testing.T) {
-	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
+	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbomgcr/fixtures/hansel-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
 	mockCheck := check{sbomClient: mockSBOMClient}
 
-	fakeList := []string{"CVE-2022-28893", "CVE-2022-28390"}
-	img, digest := "gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f", "sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f"
+	fakeList := []string{"CVE-2022-27191"}
+	img, digest := "ghcr.io/shopify/hansel", "sha256:3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242"
 	ref := getCanonicalRef(t, img, digest)
 
 	mockCheck.SetFailOnVulnerabilitiesList(fakeList)
@@ -58,12 +58,12 @@ func TestHasAListedVulnerability(t *testing.T) {
 }
 
 func TestHasNotAListedVulnerability(t *testing.T) {
-	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
+	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbomgcr/fixtures/hansel-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
 	mockCheck := check{sbomClient: mockSBOMClient}
 
 	fakeList := []string{}
-	img, digest := "gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f", "sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f"
+	img, digest := "ghcr.io/shopify/hansel", "sha256:3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242"
 	ref := getCanonicalRef(t, img, digest)
 
 	mockCheck.SetFailOnVulnerabilitiesList(fakeList)

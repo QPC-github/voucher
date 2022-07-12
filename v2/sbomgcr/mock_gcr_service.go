@@ -23,7 +23,7 @@ func NewMockGCRService(sbomTag string, fixturePath string) GCRService {
 			MediaType: "application/vnd.docker.distribution.manifest.v2+json",
 		},
 	}
-	tag, _ := name.NewTag("gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui:i-was-a-digest")
+	tag, _ := name.NewTag("ghcr.io/shopify/hansel:i-was-a-digest")
 	return &mockGCRService{manifests: manifests, tag: tag, fixturePath: fixturePath}
 }
 

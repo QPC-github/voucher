@@ -11,11 +11,11 @@ import (
 )
 
 func TestHasSBOM(t *testing.T) {
-	mockService := sbomgcr.NewMockGCRService("sha256-551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f.att", "../../sbomgcr/fixtures/clouddo-sbom-oci")
+	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbomgcr/fixtures/hansel-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
 	mockCheck := check{sbomClient: mockSBOMClient}
 
-	img, digest := "gcr.io/shopify-codelab-and-demos/sbom-lab/apps/production/clouddo-ui@sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f", "sha256:551182244aa6ab6997900bc04dd4e170ef13455c068360e93fc7b149eb2bc45f"
+	img, digest := "ghcr.io/shopify/hansel", "sha256:3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242"
 	ref := getCanonicalRef(t, img, digest)
 	sbom, err := mockCheck.hasSBOM(ref)
 

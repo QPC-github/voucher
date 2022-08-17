@@ -2,10 +2,10 @@ package config
 
 import (
 	voucher "github.com/grafeas/voucher/v2"
-	"github.com/grafeas/voucher/v2/sbomgcr"
+	"github.com/grafeas/voucher/v2/sbom"
 )
 
 func newSBOMClient() voucher.SBOMClient {
-	service := sbomgcr.NewGCRService()
-	return sbomgcr.NewClient(service)
+	service := sbom.NewGCRService()
+	return sbom.NewClient(service)
 }

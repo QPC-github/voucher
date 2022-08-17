@@ -1,4 +1,4 @@
-package sbomgcr
+package sbom
 
 import (
 	"context"

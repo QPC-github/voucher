@@ -1,12 +1,8 @@
-package sbomgcr
+package sbom
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
-	"io"
-	"time"
 
 	"github.com/CycloneDX/cyclonedx-go"
 	"github.com/docker/distribution/reference"
@@ -14,39 +10,14 @@ import (
 	goregistryv1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/google"
 	voucher "github.com/grafeas/voucher/v2"
+	sbompayload "github.com/grafeas/voucher/v2/sbom/payload"
 )
 
+// TODO: once https://github.com/in-toto/in-toto-golang/pull/169 is released
+// we should remove this and use the in-toto-golang media type
 const (
 	MediaTypeDSSE = "application/vnd.dsse.envelope.v1+json"
 )
-
-// structs for unmarshalling
-
-type Envelope struct {
-	PayloadType string      `json:"payloadType"`
-	Payload     string      `json:"payload"`
-	Signatures  []Signature `json:"signatures"`
-}
-
-type Signature struct {
-	KeyID string `json:"keyid"`
-	Sig   string `json:"sig"`
-}
-
-type CustomPredicate struct {
-	Type          string `json:"_type"`
-	PredicateType string `json:"predicateType"`
-	Subject       []struct {
-		Name   string `json:"name"`
-		Digest struct {
-			Sha256 string `json:"sha256"`
-		} `json:"digest"`
-	} `json:"subject"`
-	Predicate struct {
-		Data      string    `json:"Data"`
-		Timestamp time.Time `json:"Timestamp"`
-	} `json:"predicate"`
-}
 
 // Client connects to GCR
 type Client struct {
@@ -63,13 +34,13 @@ func (c *Client) GetSBOM(ctx context.Context, imageName, tag string) (cyclonedx.
 	repository, err := name.NewRepository(imageName)
 
 	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error getting repository name %w", err)
+		return cyclonedx.BOM{}, fmt.Errorf("error getting repository name: %w", err)
 	}
 
 	tags, err := c.service.ListTags(ctx, repository)
 
 	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error listing tags %w", err)
+		return cyclonedx.BOM{}, fmt.Errorf("error listing tags: %w", err)
 	}
 
 	sbomDigest, err := GetSBOMDigestWithTag(imageName, tags, tag)
@@ -82,13 +53,13 @@ func (c *Client) GetSBOM(ctx context.Context, imageName, tag string) (cyclonedx.
 	sbom, err := c.service.PullImage(sbomName)
 
 	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error pulling image from gcr with crane %w", err)
+		return cyclonedx.BOM{}, fmt.Errorf("error pulling image from gcr with crane: %w", err)
 	}
 
 	cycloneDX, err := GetSBOMFromImage(sbom)
 
 	if err != nil {
-		return cyclonedx.BOM{}, fmt.Errorf("error getting SBOM from image %w", err)
+		return cyclonedx.BOM{}, fmt.Errorf("error getting SBOM from image: %w", err)
 	}
 
 	return cycloneDX, nil
@@ -119,6 +90,7 @@ func GetSBOMFromImage(image goregistryv1.Image) (cyclonedx.BOM, error) {
 	}
 
 	readCloser, _ := layer[0].Uncompressed()
+	defer readCloser.Close()
 
 	// Get the media type of the Manifest
 	// TODO: This is a temporary fix until we support multiple media types
@@ -134,51 +106,19 @@ func GetSBOMFromImage(image goregistryv1.Image) (cyclonedx.BOM, error) {
 		return cyclonedxBOM, fmt.Errorf("media type is not DSSE, skipping")
 	}
 
-	envelope, err := getEnvelopeFromReader(readCloser)
+	envelope, err := sbompayload.GetEnvelopeFromReader(readCloser)
 
 	if err != nil {
 		return cyclonedxBOM, fmt.Errorf("error getting envelope %w", err)
 	}
 
-	customPredicate, err := getCustomPredicateFromEnvelope(envelope)
-
+	// Parse the envelope and get the sbom
+	err = sbompayload.GetSBOMFromEnvelope(envelope, &cyclonedxBOM)
 	if err != nil {
-		return cyclonedxBOM, fmt.Errorf("error getting custom predicate %w", err)
-	}
-
-	err = json.Unmarshal([]byte(customPredicate.Predicate.Data), &cyclonedxBOM)
-
-	if err != nil {
-		return cyclonedxBOM, fmt.Errorf("error unmarshalling into cycloneDX SBOM %w", err)
+		return cyclonedxBOM, fmt.Errorf("error getting sbom from envelope %w", err)
 	}
 
 	return cyclonedxBOM, nil
-}
-
-func getEnvelopeFromReader(reader io.ReadCloser) (Envelope, error) {
-	bt, _ := io.ReadAll(reader)
-	var envelope Envelope
-
-	err := json.Unmarshal(bt, &envelope)
-
-	if err != nil {
-		return envelope, fmt.Errorf("error unmarshalling into envelope %w", err)
-	}
-
-	return envelope, nil
-}
-
-func getCustomPredicateFromEnvelope(envelope Envelope) (CustomPredicate, error) {
-	decoded, _ := base64.StdEncoding.DecodeString(string(envelope.Payload))
-	var predicate CustomPredicate
-
-	err := json.Unmarshal(decoded, &predicate)
-
-	if err != nil {
-		return predicate, fmt.Errorf("error unmarshalling into custom predicate %w", err)
-	}
-
-	return predicate, nil
 }
 
 // NewClient creates a new sbomgcr

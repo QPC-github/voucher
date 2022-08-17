@@ -1,0 +1,13 @@
+{
+   "schemaVersion": 2,
+   "manifests": [
+      {
+         "mediaType": "application/vnd.oci.image.manifest.v1+json",
+         "size": 6457,
+         "digest": "sha256:85763357695768fab0c5fffb27005b61c4dbb52ec1b8f035612fc1ae276468de",
+         "annotations": {
+            "dev.ggcr.image.name": "ghcr.io/thepwagner-org/debian-bullseye:sha256-2b3aea0c1886b78bbc5abe7ee54a9fbf04984fe17bb92092c10edaad6eb3f8fe.att"
+         }
+      }
+   ]
+}

@@ -64,7 +64,7 @@ func getOrgAlias(orgs map[string]repository.Organization, repoOrg repository.Org
 		}
 	}
 
-	return longestMatch, "" != longestMatch
+	return longestMatch, longestMatch != ""
 }
 
 func isMatch(org, repoOrg repository.Organization) bool {

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/docker/distribution/reference"
-	sbomgcr "github.com/grafeas/voucher/v2/sbomgcr"
+	sbomgcr "github.com/grafeas/voucher/v2/sbom"
 	"github.com/opencontainers/go-digest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -31,7 +31,7 @@ func getCanonicalRef(t *testing.T, img string, digestStr string) reference.Canon
 }
 
 func TestSetVulnerabilitiesList(t *testing.T) {
-	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbomgcr/fixtures/hansel-sbom-oci")
+	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbom/fixtures/hansel-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
 	fakeList := []string{"CVE-2022-27191"}
 	mockCheck := check{sbomClient: mockSBOMClient}
@@ -42,7 +42,7 @@ func TestSetVulnerabilitiesList(t *testing.T) {
 }
 
 func TestHasAListedVulnerability(t *testing.T) {
-	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbomgcr/fixtures/hansel-sbom-oci")
+	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbom/fixtures/hansel-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
 	mockCheck := check{sbomClient: mockSBOMClient}
 
@@ -58,7 +58,7 @@ func TestHasAListedVulnerability(t *testing.T) {
 }
 
 func TestHasNotAListedVulnerability(t *testing.T) {
-	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbomgcr/fixtures/hansel-sbom-oci")
+	mockService := sbomgcr.NewMockGCRService("sha256-3dd2d9fea757f4ce163674a681c8795fcb64dbc29d3490f3f2f135fd52f5e242.att", "../../sbom/fixtures/hansel-sbom-oci")
 	mockSBOMClient := sbomgcr.NewClient(mockService)
 	mockCheck := check{sbomClient: mockSBOMClient}
 

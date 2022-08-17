@@ -1,4 +1,4 @@
-package sbomgcr
+package sbom
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type GCRService interface {
 	ListTags(ctx context.Context, repo name.Repository) (*gcr.Tags, error)
 }
 
-//  gcrServiceImpl implements GCRService
+// gcrServiceImpl implements GCRService
 type gcrServiceImpl struct {
 	auth authn.Authenticator
 }

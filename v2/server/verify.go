@@ -18,7 +18,7 @@ func (s *Server) handleVerify(w http.ResponseWriter, r *http.Request, names ...s
 
 	w.Header().Set("content-type", "application/json")
 
-	LogRequests(r)
+	requestFields := LogRequests(r)
 
 	imageData, err = handleInput(r)
 	if nil != err {
@@ -40,7 +40,7 @@ func (s *Server) handleVerify(w http.ResponseWriter, r *http.Request, names ...s
 
 	attestations, err := metadataClient.GetAttestations(ctx, imageData)
 	if nil != err {
-		LogWarning(fmt.Sprintf("could not get image attestations for %s", imageData), err)
+		LogWarning(fmt.Sprintf("could not get image attestations for %s", imageData), err, requestFields)
 	}
 
 	checkResponse := voucher.NewResponse(

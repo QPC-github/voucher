@@ -12,19 +12,25 @@ func init() {
 	log.SetFormatter(&log.JSONFormatter{})
 }
 
-// LogRequests logs the request fields to stdout as Info
-func LogRequests(r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		log.WithError(err).Info("received request with malformed form")
-		return
+// LogRequests logs the request fields to stdout as Info and returns log fields
+func LogRequests(r *http.Request) log.Fields {
+
+	fields := log.Fields{
+		"url":       r.URL.String(),
+		"path":      r.URL.Path,
+		"form":      r.Form,
+		"userAgent": r.UserAgent(),
 	}
 
-	log.WithFields(log.Fields{
-		"url":  r.URL,
-		"path": r.URL.Path,
-		"form": r.Form,
-	}).Info("received request")
+	err := r.ParseForm()
+
+	if err != nil {
+		log.WithFields(fields).WithError(err).Info("received request with malformed form")
+		return nil
+	}
+
+	log.WithFields(fields).Info("received request")
+	return fields
 }
 
 // LogResult logs each test run as Info
@@ -46,8 +52,16 @@ func LogError(message string, err error) {
 }
 
 // LogWarning logs server errors to stdout as Warning
-func LogWarning(message string, err error) {
-	log.Warningf("Server warning: %s: %s", message, err)
+func LogWarning(message string, err error, fields log.Fields) {
+
+	var warn log.FieldLogger = log.StandardLogger()
+
+	if fields != nil {
+		warn = warn.WithFields(fields)
+	}
+
+	warn.Warningf("Server warning: %s: %s", message, err)
+
 }
 
 // LogInfo logs server information to stdout as Information.

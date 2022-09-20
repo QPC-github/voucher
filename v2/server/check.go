@@ -22,7 +22,7 @@ func (s *Server) handleChecks(w http.ResponseWriter, r *http.Request, name ...st
 
 	w.Header().Set("content-type", "application/json")
 
-	LogRequests(r)
+	requestFields := LogRequests(r)
 
 	imageData, err = handleInput(r)
 	if nil != err {
@@ -48,11 +48,11 @@ func (s *Server) handleChecks(w http.ResponseWriter, r *http.Request, name ...st
 		// If no buildDetail is found, we will skip initializing the repository client.
 		buildDetail, buildErr := metadataClient.GetBuildDetail(ctx, imageData)
 		if buildErr != nil {
-			LogWarning(fmt.Sprintf("could not get image metadata for %s. Skipping repository client initialization", imageData), buildErr)
+			LogWarning(fmt.Sprintf("could not get image metadata for %s. Skipping repository client initialization", imageData), buildErr, requestFields)
 		} else {
 			repositoryClient, err = config.NewRepositoryClient(ctx, s.secrets.RepositoryAuthentication, buildDetail.RepositoryURL)
 			if err != nil {
-				LogWarning("failed to create repository client, continuing without git repo support:", err)
+				LogWarning("failed to create repository client, continuing without git repo support:", err, requestFields)
 			}
 		}
 	} else {

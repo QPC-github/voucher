@@ -14,7 +14,6 @@ func init() {
 
 // LogRequests logs the request fields to stdout as Info and returns log fields
 func LogRequests(r *http.Request) log.Fields {
-
 	fields := log.Fields{
 		"url":       r.URL.String(),
 		"path":      r.URL.Path,
@@ -53,7 +52,6 @@ func LogError(message string, err error) {
 
 // LogWarning logs server errors to stdout as Warning
 func LogWarning(message string, err error, fields log.Fields) {
-
 	var warn log.FieldLogger = log.StandardLogger()
 
 	if fields != nil {
@@ -61,7 +59,6 @@ func LogWarning(message string, err error, fields log.Fields) {
 	}
 
 	warn.Warningf("Server warning: %s: %s", message, err)
-
 }
 
 // LogInfo logs server information to stdout as Information.

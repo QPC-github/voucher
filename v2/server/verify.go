@@ -54,7 +54,7 @@ func (s *Server) handleVerify(w http.ResponseWriter, r *http.Request, names ...s
 	if nil != err {
 		// if all else fails
 		http.Error(w, err.Error(), 500)
-		LogError("failed to encode respoonse as JSON", err)
+		LogError("failed to encode response as JSON", err)
 		return
 	}
 }

@@ -42,7 +42,7 @@ Below are the configuration options for Voucher Server:
 | Group                | Key                          | Description                                                                                           |
 | :-------------       | :--------------------------- | :---------------------------------------------------------------------------------------------------- |
 |                      | `dryrun`                     | When set, don't create attestations.                                                                  |
-|                      | `scanner`                    | The vulnerability scanner to use ("clair" or "metadata").                                                  |
+|                      | `scanner`                    | The vulnerability scanner to use ("metadata").                                                        |
 |                      | `failon`                     | The minimum vulnerability to fail on. Discussed below.                                                |
 |                      | `valid_repos`                | A list of repos that are owned by your team/organization.                                             |
 |                      | `trusted_builder_identities` | A list of email addresses. Owners of these emails are considered "trusted" (and will pass Provenance) |
@@ -57,13 +57,19 @@ Below are the configuration options for Voucher Server:
 | `ejson`              | `dir`                        | The path to the ejson keys directory.                                                                 |
 | `ejson`              | `secrets`                    | The path to the ejson secrets.                                                                        |
 | `sops`               | `file`                       | The path to the SOPS secrets.                                                                         |
+<<<<<<< HEAD
 | `clair`              |  `address`                   |(Deprecated, clair is no longer supported) The hostname that Clair exists at. If "http://" or "https://" is omitted, this will default to HTTPS. |
+=======
+>>>>>>> grafeas/main
 | `repository.[alias]` | `org-url`                    | The URL used to determine if a repository is owned by an organization.                                |
 | `required.[env]`     | (test name here)             | A test that is active when running "env" tests.                                                       |
-| `statsd`             | `backend`                    | The destination for reporting metrics, can be `statsd` for local aggregation, or `datadog`.           |
-| `statsd`             | `addr`                       | The UDP endpoint to use when `statsd.backend == "statsd"`.                                            |
-| `statsd`             | `tags`                       | List of tags in `key:value` format that apply to every metric. Example: `env:production`.                |
-| `statsd`             | `sample_rate`                | Configurable sample rate to limit metrics overhead.                                                    |
+| `metrics`            | `backend`                    | The destination for reporting metrics, can be `statsd` for local aggregation, `datadog` for direct Datadog API, or `opentelemetry` for an otel collector. |
+| `metrics`            | `tags`                       | List of tags in `key:value` format that apply to every metric. Example: `env:production`.             |
+| `statsd`             | `addr`                       | The UDP endpoint to use when `metrics.backend == "statsd"`                                            |
+| `statsd`             | `sample_rate`                | Configurable sample rate to limit metrics overhead.                                                   |
+| `opentelemetry`      | `interval`                   | The interval at which to flush metrics to the opentelemetry collector.                                |
+| `opentelemetry`      | `addr`                       | The `http://`, `https://` or `grpc://` address for the opentelemetry collector.                       |
+| `opentelemetry`      | `insecure`                   | Disable transport security like HTTPS for the opentelemetry collector.                                |
 
 Configuration options can be overridden at runtime by setting the appropriate flag. For example, if you set the "port" flag when running `voucher_server`, that value will override whatever is in the configuration.
 
@@ -74,8 +80,6 @@ Secret values are stored encrypted in an ejson or SOPS file, and can not be over
 | Group                | Key                          | Description                                                                                           |
 | :-------------       | :--------------------------- | :---------------------------------------------------------------------------------------------------- |
 | `openpgpkeys`        | (test name here)             | The PGP key to use for signing attestations of a specific test.                                       |
-| `clair`              | `username`                   | (Deprecated, clair is no longer supported) Username for CoreOS Clair, if configured as a scanner.                                                |
-| `clair`              | `password`                   | (Deprecated, clair is no longer supported) Password for CoreOS Clair, if configured as a scanner.                                                |
 | `datadog`            | `api_key`                    | API key for direct submission when configuration `statsd.backend == "datadog"`.                       |
 | `datadog`            | `app_key`                    | App key for direct submission when configuration `statsd.backend == "datadog"`.                       |
 | `repositories`       | (repository owner name here) | Credentials for repository authentication.                                                            |
@@ -84,13 +88,10 @@ Secret values are stored encrypted in an ejson or SOPS file, and can not be over
 
 The `scanner` option in the configuration is used to select the Vulnerability scanner.
 
-This option supports two values:
+This option supports one value:
 
-- (Deprecated, clair is no longer supported) `c` or `clair` to use an instance of CoreOS's Clair.
 - `metadata` to use Google Container Analysis. (Note that `g` and `gca` are being deprecated in favor of `metadata`.)
 
-(Deprecated, clair is no longer supported)
-If you decide to use Clair, you will need to update the clair configuration block to specify the correct address for the server.
 
 ### Fail-On: Failing on vulnerabilities
 
@@ -256,7 +257,7 @@ With this configuration, the `diy`, `nobody`, `snakeoil`, and `is_shopify` check
 
 ### Check Groups
 
-You can configure named groups of checks identically to how you would define an [enable 
+You can configure named groups of checks identically to how you would define an [enable
 checks](#enabling-checks) block, by replacing the block heading with `required.[env]`
 where `[env]` is a name of your choosing.
 

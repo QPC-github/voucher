@@ -57,10 +57,6 @@ Below are the configuration options for Voucher Server:
 | `ejson`              | `dir`                        | The path to the ejson keys directory.                                                                 |
 | `ejson`              | `secrets`                    | The path to the ejson secrets.                                                                        |
 | `sops`               | `file`                       | The path to the SOPS secrets.                                                                         |
-<<<<<<< HEAD
-| `clair`              |  `address`                   |(Deprecated, clair is no longer supported) The hostname that Clair exists at. If "http://" or "https://" is omitted, this will default to HTTPS. |
-=======
->>>>>>> grafeas/main
 | `repository.[alias]` | `org-url`                    | The URL used to determine if a repository is owned by an organization.                                |
 | `required.[env]`     | (test name here)             | A test that is active when running "env" tests.                                                       |
 | `metrics`            | `backend`                    | The destination for reporting metrics, can be `statsd` for local aggregation, `datadog` for direct Datadog API, or `opentelemetry` for an otel collector. |

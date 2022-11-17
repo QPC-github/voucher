@@ -14,12 +14,7 @@ Make sure that you update the `ejson` or `sops` specific blocks to point to the 
 
 ## Create secrets
 
-<<<<<<< HEAD
-(Deprecated, clair is no longer supported)
-If you plan on creating attestations (rather than just running checks against your images), or if you plan on using Clair as your Vulnerability Scanner, you will need to create a secrets file to store secret values like the OpenPGP keys and/or Clair login information.
-=======
 If you plan on creating attestations (rather than just running checks against your images), you will need to create a secrets file to store secret values like the OpenPGP keys.
->>>>>>> grafeas/main
 
 ### Create ejson configuration
 
@@ -45,11 +40,7 @@ You can then create an `ejson` file using the public key included. For example:
 ```json
 {
     "_public_key": "<public key>",
-<<<<<<< HEAD
-    "openpgpkeys": {},
-=======
     "openpgpkeys": {}
->>>>>>> grafeas/main
 }
 ```
 
@@ -221,11 +212,7 @@ Next, create a new value in the `openpgpkeys` block in your secrets file. Make s
 {
     "openpgpkeys": {
         "diy": "-----BEGIN PGP PRIVATE KEY BLOCK-----\nlQcYBFt23t8BEADuZqi...."
-<<<<<<< HEAD
-    },
-=======
     }
->>>>>>> grafeas/main
 }
 ```
 

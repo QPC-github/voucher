@@ -7,11 +7,8 @@ import (
 	voucher "github.com/grafeas/voucher/v2"
 )
 
-func newScanner(secrets *Secrets, metadataClient voucher.MetadataClient, auth voucher.Auth) (scanner voucher.VulnerabilityScanner) {
+func newScanner(metadataClient voucher.MetadataClient) (scanner voucher.VulnerabilityScanner) {
 	scannerName := viper.GetString("scanner")
-	// silence linter errors
-	_ = secrets
-	_ = auth
 	switch scannerName {
 	case "gca", "g":
 		log.Warningf("the %s option for `scanner` has been deprecated and will be removed in the future. Please use `metadata` instead.", scannerName)

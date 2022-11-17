@@ -17,18 +17,15 @@ func LogRequests(r *http.Request) log.Fields {
 	fields := log.Fields{
 		"url":       r.URL.String(),
 		"path":      r.URL.Path,
-		"form":      r.Form,
 		"userAgent": r.UserAgent(),
 	}
 
-	err := r.ParseForm()
-
-	if err != nil {
+	if err := r.ParseForm(); err != nil {
 		log.WithFields(fields).WithError(err).Info("received request with malformed form")
 		return nil
 	}
 
-	log.WithFields(fields).Info("received request")
+	log.WithFields(fields).WithField("form", r.Form).Info("received request")
 	return fields
 }
 

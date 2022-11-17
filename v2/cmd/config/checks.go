@@ -91,10 +91,10 @@ func setCheckSBOMVulnerabilityClient(check voucher.Check, vulnFailList []string,
 // NewCheckSuite creates a new checks.Suite with the requested
 // Checks, passing any necessary configuration details to the
 // checks.
-func NewCheckSuite(secrets *Secrets, metadataClient voucher.MetadataClient, repositoryClient repository.Client, names ...string) (*voucher.Suite, error) {
+func NewCheckSuite(metadataClient voucher.MetadataClient, repositoryClient repository.Client, names ...string) (*voucher.Suite, error) {
 	auth := newAuth()
 	repos := validRepos()
-	scanner := newScanner(secrets, metadataClient, auth)
+	scanner := newScanner(metadataClient)
 	checksuite := voucher.NewSuite()
 	sbom := newSBOMClient()
 

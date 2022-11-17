@@ -81,4 +81,8 @@ func TestReadSops(t *testing.T) {
 	cmd := exec.Command("gpg", "--import", "../../../testdata/testkey.asc")
 	err := cmd.Run()
 	require.NoError(t, err)
+
+	data, err := ReadSecrets()
+	require.NoError(t, err)
+	assert.Contains(t, data.Keys, "snakeoil")
 }

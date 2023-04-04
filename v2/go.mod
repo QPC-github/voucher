@@ -15,7 +15,7 @@ require (
 	github.com/antihax/optional v1.0.0
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/docker/distribution v2.7.1+incompatible
-	github.com/docker/docker v20.10.12+incompatible
+	github.com/docker/docker v20.10.24+incompatible
 	github.com/docker/libtrust v0.0.0-20160708172513-aabc10ec26b7
 	github.com/dustin/gojson v0.0.0-20160307161227-2e71ec9dd5ad // indirect
 	github.com/golang/mock v1.6.0
